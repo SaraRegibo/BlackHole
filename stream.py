@@ -55,6 +55,10 @@ class ImageProcessor(threading.Thread):
                     # Read the image and do some processing on it
                     #Image.open(self.stream)
                     data = np.fromstring(self.stream.getvalue(), dtype = np.uint8)
+                    data = np.flipud(data)
+                    print "Flipped"
+                    np.savetxt(self.stream, data)
+                    print "Done"
                     #image = cv2.imdecode(data, 1)
                     #...
                     #...
@@ -74,7 +78,7 @@ class ImageProcessor(threading.Thread):
                     
                     with lock:
                         
-                        pool.append(self)
+                        pool.append(self)  
 
 def streams():
     
@@ -84,8 +88,7 @@ def streams():
             
             if pool:
 
-                # If there are still items left in the pool, go to the next image processor                
-                print "Pop processor"
+                # If there are still items left in the pool, go to the next image processor
                 processor = pool.pop()
                 
             else:
@@ -118,7 +121,7 @@ with picamera.PiCamera() as camera:
     # Camera configuration    
     
     camera.resolution = (640, 480)  # Resolution (width [pixels], height [pixels])
-    camera.framerate = 30           # Frame rate [1/s]
+    camera.framerate = 10           # Frame rate [1/s]
     camera.start_preview()
     time.sleep(2)
     
