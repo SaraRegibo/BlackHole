@@ -14,6 +14,7 @@ import io
 import time
 import threading
 import picamera
+import numpy as np
 
 ##################
 # Global variables
@@ -53,6 +54,8 @@ class ImageProcessor(threading.Thread):
                     
                     # Read the image and do some processing on it
                     #Image.open(self.stream)
+                    data = np.fromstring(self.stream.getvalue(), dtype = np.uint8)
+                    #image = cv2.imdecode(data, 1)
                     #...
                     #...
                     # Set done to True if you want the script to terminate
@@ -82,7 +85,7 @@ def streams():
             if pool:
 
                 # If there are still items left in the pool, go to the next image processor                
-                
+                print "Pop processor"
                 processor = pool.pop()
                 
             else:
@@ -122,10 +125,10 @@ with picamera.PiCamera() as camera:
     try:
         
         # Keep on capturing images, apply the influence of the black hole and display them        
-        
+        print "Start capturing sequence"
         camera.capture_sequence(streams(), use_video_port=True)
 
-    except:
+    except KeyboardInterrupt:
         
         # Once the process gets interrupted (Ctrl + C), shut down the processors in an orderly fashion
         
@@ -137,3 +140,4 @@ with picamera.PiCamera() as camera:
                 
             processor.terminated = True
             processor.join()
+            camera.stop_preview()
